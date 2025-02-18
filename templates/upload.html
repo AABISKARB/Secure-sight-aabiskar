@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Video</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        form {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            width: 50%;
+            background-color: #f9f9f9;
+        }
+        input {
+            margin: 10px 0;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>SecureSight</h2>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="video/*" required>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+
+    {% if message %}
+    <div class="message {% if 'No' in message %}error{% endif %}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <h3>Start CCTV Stream</h3>
+    <form action="/cctv" method="post">
+        <input type="text" name="camera_ip" placeholder="Enter camera IP" required>
+        <br>
+        <button type="submit">Start CCTV</button>
+    </form>
+
+    
+    <h3>Execute Colab Notebook</h3>
+    <a href="https://colab.research.google.com/drive/1YVtY81WWKjViVLJOhpfdDveXDIavvf6q" target="_blank">
+        <button>Open and Run Notebook</button>
+    </a>
+</body>
+</html>
