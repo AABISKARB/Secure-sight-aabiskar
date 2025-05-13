@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detected Frames</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: url(../static/images/nirajan6.png);
+        }
+        h1{
+            color: beige;
+        }
+        .frame-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 900px;
+        }
+        .frame-grid img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Detected Frames</h1>
+    <div class="frame-grid">
+        {% for file in files %}
+        <div>
+            <img src="{{ url_for('serve_frame', frame_id=frame_id, filename=file) }}?v={{ timestamp }}" alt="Frame {{ loop.index }}">
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

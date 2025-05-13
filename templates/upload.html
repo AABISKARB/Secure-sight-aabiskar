@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureSight Detection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-image: url('static/images/nirajan5.jpg');
+      background-size: cover;
+      color: beige;
+    }
+
+    form {
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 900px;
+      background-color: #fff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      background-color: #3B3B3B;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .custom-file-upload {
+      display: inline-block;
+      padding: 15px 30px;
+      background-color: #28282B;
+      color: cyan;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 700;
+      transition: background-color 0.3s ease;
+    }
+
+    /* File name and text section */
+    .file-name {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: white;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: beige;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 20px 40px;
+      font-size: 1rem;
+      background-color: #28282B;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: cyan;
+      text-decoration: none;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+   
+
+    /* Message Styles */
+    .message {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .normal {
+      background-color: #fff;
+      color: black;
+    }
+    
+    /* Image Grid Styles */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+
+    .image-grid img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .image-grid img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
+
+    #upload-results{
+      background-color: #3B3B3B;
+      padding: 20px;
+      width: 900px;
+      height: 1200px;
+      border-radius: 10px;
+      color: beige;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    a {
+      text-decoration: none;
+      color: white;
+    }
+    a:hover{
+      color: #FFDE4D;
+    }
+    #predict-status {
+      color: #0078d7;
+    }
+  </style>
+</head>
+<body>
+
+    <h2>Upload Video Files</h2>
+
+    <!-- Video Upload Form -->
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <!-- Custom "Choose File" button -->
+      <label for="file-upload" class="custom-file-upload">
+        Choose Video File
+      </label>
+      <input type="file" id="file-upload" name="file" accept="video/*" required>
+      <div id="file-name" class="file-name">Status: No file chosen</div>
+      <br>
+      <button type="submit">Upload Video for Detection</button>
+    </form>
+
+    <!-- Upload Results Section -->
+  <div id="upload-results">
+    Output:
+    {% if message %}
+      <div class="message {% if 'No' in message %}success{% else %}error{% endif %}">
+        {{ message }}
+      </div>
+      <div class="message normal">
+        Stream Source : Uploaded Video
+      </div>
+      <div class="message normal">Monitoring Status: <span id="predict-status">Analysis complete<span></div>
+      
+    {% endif %}
+   
+    {% if files and frame_id %}
+      <h3>Detected Frames:</h3>
+      <div class="image-grid">
+        {% for file in files %}
+          <div>
+            <img src="{{ url_for('serve_frame', frame_id=frame_id, filename=file) }}?v={{ timestamp }}" alt="Frame {{ loop.index }}">
+          </div>
+        {% endfor %}
+      </div>
+      <a href="{{ url_for('show_frames', frame_id=frame_id) }}">View Frames on Separate Page</a>
+    {% endif %}
+  </div>
+  
+  <script>
+    // Update file name when a file is selected
+    document.getElementById('file-upload').addEventListener('change', function(e) {
+      var fileName = e.target.files.length ? `file selected:${e.target.files[0].name}` : 'Status: No file chosen';
+      document.getElementById('file-name').textContent = fileName;
+    });
+  </script>
+
+</body>
+</html>

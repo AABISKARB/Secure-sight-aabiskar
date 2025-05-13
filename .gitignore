@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.env
+*.DS_Store
+.env
+.venv/
+venv/
+
+# VSCode settings
+.vscode/
+
+# System
+Thumbs.db
+.DS_Store

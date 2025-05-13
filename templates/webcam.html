@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureSight - Video Upload</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background:url(../static/images/nirajan6.png) ;
+      color: #FFDE4D;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 20px;
+      font-size: 2.5rem;
+      color: beige;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    h3 {
+      font-size: 1.8rem;
+      color: beige;
+      margin-top: 30px;
+    }
+    
+    /* Form Styles */
+    form {
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      background-color: #fff;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    input[type="file"] {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 80%;
+    }
+     button {
+      padding: 20px 40px;
+      font-size: 1rem;
+      background-color: #28282B;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: cyan;
+      text-decoration: none;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    
+    /* Message Styles */
+    .message {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    /* Image Grid Styles */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    .image-grid img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+    .image-grid img:hover {
+      transform: scale(1.05);
+    }
+    
+    /* CCTV Stream Section Styles */
+    .cctv-control {
+      margin: 20px 0;
+    }
+    .video-container {
+      position: relative;
+      margin: 20px auto;
+      width: 80%;
+      max-width: 800px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    #video-stream {
+      width: 100%;
+      display: none;
+    }
+    #close-stream {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: red; /* Semi-transparent blue */
+    color: white;                         /* Black cross sign */
+    border: none;
+    border-radius: 0;                     /* Rectangle shape */
+    width: 20px;                          /* Increased width for rectangle look */
+    height: 70px;
+    cursor: pointer;
+    display: none;
+    font-size: 4rem;
+    font-weight: 100;
+    line-height: 7.5px;
+    text-align: center;
+    z-index: 100;
+    transition: background 0.3s ease;
+    }
+    /* #close-stream:hover {
+      background: rgb(255, 255, 255);
+    } */
+    
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <h2>SecureSight</h2>
+
+  <!-- Upload Results Section -->
+  <div id="upload-results">
+    {% if message %}
+      <div class="message {% if 'No' in message %}error{% else %}success{% endif %}">
+        {{ message }}
+      </div>
+    {% endif %}
+
+    {% if files and frame_id %}
+      <h3>Detected Frames</h3>
+      <div class="image-grid">
+        {% for file in files %}
+          <div>
+            <img src="{{ url_for('serve_frame', frame_id=frame_id, filename=file) }}?v={{ timestamp }}" alt="Frame {{ loop.index }}">
+          </div>
+        {% endfor %}
+      </div>
+      <a href="{{ url_for('show_frames', frame_id=frame_id) }}">View Frames on Separate Page</a>
+    {% endif %}
+  </div>
+
+  <!-- CCTV Stream Section -->
+  <h3>Live CCTV Stream</h3>
+  <div class="cctv-control">
+    <button id="start-cctv">Start CCTV</button>
+  </div>
+  <div class="video-container">
+    <button id="close-stream" title="Stop CCTV">&times;</button>
+    <img id="video-stream" src="" alt="Live CCTV Stream">
+  </div>
+
+  <script>
+    const startBtn = document.getElementById('start-cctv');
+    const closeBtn = document.getElementById('close-stream');
+    const videoStream = document.getElementById('video-stream');
+    const uploadResults = document.getElementById('upload-results');
+    const cctvControl = document.querySelector('.cctv-control');
+
+    startBtn.addEventListener('click', function() {
+      // Hide previous upload results
+      uploadResults.classList.add('hidden');
+      
+      // Show video stream
+      videoStream.src = "{{ url_for('video_feed') }}";
+      videoStream.style.display = 'block';
+      closeBtn.style.display = 'block';
+      
+      // Hide start button
+      cctvControl.classList.add('hidden');
+    });
+
+    closeBtn.addEventListener('click', function() {
+      // Stop the video stream
+      videoStream.src = '';
+      videoStream.style.display = 'none';
+      closeBtn.style.display = 'none';
+      
+      // Show upload results if they exist
+      uploadResults.classList.remove('hidden');
+      
+      // Show start button in original position
+      cctvControl.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
